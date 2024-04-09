@@ -7,10 +7,10 @@ import (
 )
 
 // initializing a data structure to keep the scraped data
-type PokemonProduct struct {
-	Name   string `json:name`
-	Price  string `json:price`
-	ImgUrl string `json:imgurl`
+type item struct {
+	Name   string `json:"name"`
+	Price  string `json:"price"`
+	ImgUrl string `json:"imgurl"`
 }
 
 func main() {
@@ -19,7 +19,13 @@ func main() {
 
 	c.OnHTML("a.woocommerce-LoopProduct-link.woocommerce-loop-product__link", func(h *colly.HTMLElement) {
 
-		fmt.Println(h.Text)
+		item := item{
+			Name:   h.ChildText("h2.woocommerce-loop-product__title"),
+			Price:  h.ChildText("span.woocommerce-Price-amount.amount"),
+			ImgUrl: h.ChildAttr("img", "src"),
+		}
+
+		fmt.Println(item)
 
 	})
 
