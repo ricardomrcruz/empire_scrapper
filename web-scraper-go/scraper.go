@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 
 	"github.com/gocolly/colly"
 )
@@ -47,6 +49,14 @@ func main() {
 
 	c.Visit("https://scrapeme.live/shop/")
 
-	fmt.Println(items)
+	// fmt.Println(items)
+
+	content, err := json.Marshal(items)
+
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	os.WriteFile("pokedex.json", content, 0644)
 
 }
