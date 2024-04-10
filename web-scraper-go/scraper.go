@@ -17,10 +17,10 @@ func main() {
 
 	c := colly.NewCollector()
 
-	
 	//User Agent change. Colly agents remain identifiable by anti-scrapping technologies by default.
 	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
 
+	var items []item
 
 	c.OnHTML("a.woocommerce-LoopProduct-link.woocommerce-loop-product__link", func(h *colly.HTMLElement) {
 
@@ -30,10 +30,23 @@ func main() {
 			ImgUrl: h.ChildAttr("img", "src"),
 		}
 
-		fmt.Println(item)
+		items = append(items, item)
+
+		// fmt.Println(item)
 
 	})
 
+	c.OnHTML("a.next.page-numbers", func(h *colly.HTMLElement) {
+		next_page := h.Request.AbsoluteURL(h.Attr("href"))
+		c.Visit(next_page)
+	})
+
+	c.OnRequest(func(r *colly.Request) {
+		fmt.Println(r.URL.String())
+	})
+
 	c.Visit("https://scrapeme.live/shop/")
+
+	fmt.Println(items)
 
 }
