@@ -23,22 +23,32 @@ func rotator() {
 
 	var proxies []proxy
 
-	c.OnHTML("table.table.table-striped.table-bordered", func(h *colly.HTMLElement) {
+	c.OnHTML("table.table.table-striped.table-bordered tr ", func(h *colly.HTMLElement) {
 
-		proxy := proxy{
-			Ip:   h.ChildText("td:nth-child(1)"),
-			Port: h.ChildText("td:nth-child(2)"),
+		ip := h.ChildText("td:nth-child(1)")
+		port := h.ChildText("td:nth-child(2)")
+
+		// fmt.Printf("IP='%s', 'PORT:'%s'	\n", ip, port) //debugging purposes
+
+		//first line gets empty because it scrapes first element of  thetable which his a title
+		if ip != "" && port != "" {
+
+			p := proxy{
+				Ip:   ip,
+				Port: port,
+			}
+			proxies = append(proxies, p)
 		}
 
-		proxies = append(proxies, proxy)
-
-		//  fmt.Println(proxy)
+		//debug double check
+		// fmt.Printf("Current Proxy List: %+v\n", proxies)
 
 	})
 
 	c.Visit("https://sslproxies.org/")
 	c.Wait()
 
+	//random proxy
 	r := rand.Intn(len(proxies))
 	proxy := proxies[r]
 
@@ -49,6 +59,7 @@ func rotator() {
 func ticker() {
 
 	ticker := time.NewTicker(2 * time.Hour)
+	defer ticker.Stop()
 
 	for range ticker.C {
 		rotator()
