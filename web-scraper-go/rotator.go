@@ -1,9 +1,9 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
+	"math/rand"
+	"time"
 
 	"github.com/gocolly/colly"
 )
@@ -32,24 +32,25 @@ func rotator() {
 
 		proxies = append(proxies, proxy)
 
-		// fmt.Println(proxy)
+		//  fmt.Println(proxy)
 
-	})
-
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println(r.URL.String())
 	})
 
 	c.Visit("https://sslproxies.org/")
+	c.Wait()
 
-	// fmt.Println(items)
+	r := rand.Intn(len(proxies))
+	proxy := proxies[r]
 
-	content, err := json.Marshal(proxies)
+	fmt.Println(proxy)
 
-	if err != nil {
-		fmt.Println(err.Error())
+}
+
+func ticker() {
+
+	ticker := time.NewTicker(2 * time.Hour)
+
+	for range ticker.C {
+		rotator()
 	}
-
-	os.WriteFile("proxies.json", content, 0644)
-
 }

@@ -16,6 +16,8 @@ type item struct {
 }
 
 func main() {
+	rotator()
+	// ticker()
 
 	c := colly.NewCollector()
 
