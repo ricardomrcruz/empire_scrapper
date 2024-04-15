@@ -1,9 +1,12 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 	"os"
 
 	"github.com/gocolly/colly"
@@ -25,9 +28,17 @@ func main() {
 
 	fmt.Printf("Using Proxy: %s:%s\n", randProxy.Ip, randProxy.Port)
 
+	//http client
 
-	
-
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(&url.URL{
+				Scheme: "http",
+				Host:   randProxy.Ip + ":" + randProxy.Port,
+			}),
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
 
 	//Colly Scraping
 
@@ -35,6 +46,8 @@ func main() {
 
 	//User Agent change. Colly agents remain identifiable by anti-scrapping technologies by default.
 	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+
+	c.WithTransport(httpClient.Transport)
 
 	proxyURL := fmt.Sprintf("http://%s:%s", randProxy.Ip, randProxy.Port)
 	if err := c.SetProxy(proxyURL); err != nil {
