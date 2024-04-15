@@ -3,25 +3,26 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"time"
+
+	// "time"
 
 	"github.com/gocolly/colly"
 )
 
 // initializing a data structure to keep the scraped data
-type proxy struct {
+type Proxy struct {
 	Ip   string `json:"proxy"`
 	Port string `json:"port"`
 }
 
-func rotator() {
+func rotator() (Proxy, error) {
 
 	c := colly.NewCollector()
 
 	//User Agent change. Colly agents remain identifiable by anti-scrapping technologies by default.
 	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
 
-	var proxies []proxy
+	var proxies []Proxy
 
 	c.OnHTML("table.table.table-striped.table-bordered tr ", func(h *colly.HTMLElement) {
 
@@ -33,7 +34,7 @@ func rotator() {
 		//first line gets empty because it scrapes first element of  thetable which his a title
 		if ip != "" && port != "" {
 
-			p := proxy{
+			p := Proxy{
 				Ip:   ip,
 				Port: port,
 			}
@@ -48,20 +49,27 @@ func rotator() {
 	c.Visit("https://sslproxies.org/")
 	c.Wait()
 
-	//random proxy
-	r := rand.Intn(len(proxies))
-	proxy := proxies[r]
+	if len(proxies) > 0 {
+		//random proxy
+		r := rand.Intn(len(proxies))
+		randProxy := proxies[r]
 
-	fmt.Println(proxy)
+		fmt.Println(randProxy)
 
-}
-
-func ticker() {
-
-	ticker := time.NewTicker(2 * time.Hour)
-	defer ticker.Stop()
-
-	for range ticker.C {
-		rotator()
+		return randProxy, nil
 	}
+
+	return Proxy{}, fmt.Errorf("no proxies found")
+
 }
+
+// {52.35.240.119 1080}
+// func ticker() {
+
+// 	ticker := time.NewTicker(2 * time.Hour)
+// 	defer ticker.Stop()
+
+// 	for range ticker.C {
+// 		rotator()
+// 	}
+// }

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/gocolly/colly"
@@ -16,13 +17,29 @@ type item struct {
 }
 
 func main() {
-	rotator()
-	// ticker()
+
+	randProxy, err := rotator()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Printf("Using Proxy: %s:%s\n", randProxy.Ip, randProxy.Port)
+
+
+	
+
+
+	//Colly Scraping
 
 	c := colly.NewCollector()
 
 	//User Agent change. Colly agents remain identifiable by anti-scrapping technologies by default.
 	c.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+
+	proxyURL := fmt.Sprintf("http://%s:%s", randProxy.Ip, randProxy.Port)
+	if err := c.SetProxy(proxyURL); err != nil {
+		log.Fatal("Failed proxy in the collector : ", err)
+	}
 
 	var items []item
 
@@ -60,5 +77,5 @@ func main() {
 	}
 
 	os.WriteFile("pokedex.json", content, 0644)
-
+	// ticker()
 }
