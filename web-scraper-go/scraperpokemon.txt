@@ -54,7 +54,7 @@ func main() {
 		fmt.Println(r.URL.String())
 	})
 
-	c.Visit("https://www.amazon.fr/s?k=playstation+5+ps5+console")
+	c.Visit("https://scrapeme.live/shop/")
 
 	// fmt.Println(items)
 
