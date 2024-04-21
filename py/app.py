@@ -1,7 +1,8 @@
 from playwright.sync_api import sync_playwright
 from selectolax.parser import HTMLParser
 from dataclasses import dataclass
-from rich import print 
+from rich import print
+import csv
 
 
 @dataclass
@@ -19,30 +20,39 @@ def get_html(page, asin):
 
 
 def parse_html(html, asin):
-    item= Item(
-        asin:asin, 
-        title: html.css_firs("span#productTitle").text(strip=True),
-        price: html.css_first("span.a-price.aok-align-center.reinventPricePriceToPayMargin.priceToPay").text(strip=True),
+    item = Item(
+        asin=asin,
+        title=html.css_first("span#productTitle").text(strip=True),
+        price=html.css_first(
+            "span.a-price.aok-align-center.reinventPricePriceToPayMargin.priceToPay"
+        ).text(strip=True),
     )
-    print(html.css_first("title").text())
-    print(asin)
-    return Item
-   
+    return item
 
 
-def run():
-    asin = "B08H93ZRK9"
+def read_csv():
+    with open("products.csv", "r") as f:
+        reader = csv.reader(f)
+        return [item[0] for item in reader]
+
+
+def run(asin):
     pw = sync_playwright().start()
     browser = pw.chromium.launch()
     page = browser.new_page()
     html = get_html(page, asin)
     product = parse_html(html, asin)
     print(product)
-
+    browser.close()
+    pw.stop()
 
 
 def main():
-    run()
+    asins = read_csv()
+    for asin in asins:
+        run(asin)
+    # print(asins)
+    # run()
 
 
 if __name__ == "__main__":
