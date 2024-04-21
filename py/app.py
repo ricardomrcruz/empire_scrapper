@@ -1,5 +1,14 @@
 from playwright.sync_api import sync_playwright
 from selectolax.parser import HTMLParser
+from dataclasses import dataclass
+from rich import print 
+
+
+@dataclass
+class Item:
+    asin: str
+    title: str
+    price: str
 
 
 def get_html(page, asin):
@@ -10,8 +19,15 @@ def get_html(page, asin):
 
 
 def parse_html(html, asin):
+    item= Item(
+        asin:asin, 
+        title: html.css_firs("span#productTitle").text(strip=True),
+        price: html.css_first("span.a-price.aok-align-center.reinventPricePriceToPayMargin.priceToPay").text(strip=True),
+    )
     print(html.css_first("title").text())
     print(asin)
+    return Item
+   
 
 
 def run():
@@ -20,7 +36,9 @@ def run():
     browser = pw.chromium.launch()
     page = browser.new_page()
     html = get_html(page, asin)
-    parse_html(html, asin)
+    product = parse_html(html, asin)
+    print(product)
+
 
 
 def main():
