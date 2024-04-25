@@ -6,3 +6,7 @@ from django.http import HttpResponse
 
 def index(request):
     return render(request, "playground/index.html")
+
+
+def contact(request):
+    return render(request, "playground/contact.html")
